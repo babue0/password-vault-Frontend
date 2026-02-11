@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://password-vault-1ynf.onrender.com/api";
 let currentUser = null;
 
 // === FUNÇÃO MÁGICA DE LIMPEZA ===
