@@ -1,0 +1,244 @@
+/* RESET & BASIC SETUP */
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: #f3f4f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  color: #1f2937;
+}
+
+/* UTILITIES */
+.hidden {
+  display: none !important; /* OBRIGATÓRIO: Garante que esconde */
+}
+
+.container {
+  width: 100%;
+  max-width: 500px; /* AUMENTADO: Era 400px, agora é maior */
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 40px; /* Aumentei o padding interno */
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+/* TYPOGRAPHY */
+.title {
+  margin-bottom: 10px;
+  color: #111827;
+  font-size: 28px;
+}
+.subtitle {
+  margin-top: 0;
+  color: #6b7280;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+/* FORMS */
+.input-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+input {
+  width: 100%;
+  padding: 14px; /* Input maior */
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px; /* Letra maior */
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* BUTTONS */
+button {
+  width: 100%;
+  padding: 14px; /* Botão maior */
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  transition:
+    transform 0.1s,
+    background-color 0.2s;
+}
+button:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: white;
+}
+.btn-success:hover {
+  background-color: #059669;
+}
+
+.btn-cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+  margin-top: 10px;
+}
+.btn-cancel:hover {
+  background-color: #d1d5db;
+}
+
+.switch-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 25px;
+}
+.switch-text span {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+.switch-text span:hover {
+  text-decoration: underline;
+}
+
+/* --- DASHBOARD HEADER (NOVO) --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h2 {
+  font-size: 36px; /* TÍTULO BEM MAIOR */
+  margin: 0;
+  color: #111827;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Botão + (Quadrado Azul) */
+.btn-add {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  background-color: #2563eb;
+  color: white;
+  border-radius: 8px;
+  line-height: 1;
+}
+.btn-add:hover {
+  background-color: #1d4ed8;
+}
+
+/* Botão Logout (Ajustado) */
+.btn-logout {
+  background: transparent;
+  color: #ef4444;
+  width: auto;
+  border: 2px solid #ef4444; /* Borda mais grossa */
+  padding: 0 16px;
+  height: 44px; /* Mesma altura do botão + */
+  display: flex;
+  align-items: center;
+}
+.btn-logout:hover {
+  background-color: #fee2e2;
+}
+
+/* --- LISTA DE SENHAS --- */
+.list-container {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.card-item {
+  background: white;
+  padding: 20px; /* Cartão maior */
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  border: 1px solid #e5e7eb;
+  border-left: 6px solid #2563eb;
+}
+.card-item strong {
+  display: block;
+  font-size: 20px;
+  color: #111827;
+  margin-bottom: 6px;
+} /* Texto maior */
+.card-item p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #6b7280;
+}
+.card-item code {
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #dc2626;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 350px;
+}
+.modal-actions {
+  margin-top: 20px;
+}

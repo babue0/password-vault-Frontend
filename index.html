@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Vault</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div id="login-section">
+        <div class="card">
+          <h1 class="title">Welcome Back</h1>
+          <p class="subtitle">Enter your master credentials</p>
+
+          <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="login-username" placeholder="e.g. admin" />
+          </div>
+          <div class="input-group">
+            <label>Master Password</label>
+            <input type="password" id="login-password" placeholder="••••••" />
+          </div>
+
+          <button onclick="login()" class="btn-primary">Access Vault</button>
+
+          <p class="switch-text">
+            New here? <span onclick="showRegister()">Create an account</span>
+          </p>
+        </div>
+      </div>
+
+      <div id="register-section" class="hidden">
+        <div class="card">
+          <h1 class="title">Create Account</h1>
+          <p class="subtitle">Setup your secure vault</p>
+
+          <div class="input-group">
+            <label>Choose Username</label>
+            <input type="text" id="reg-username" placeholder="e.g. myuser" />
+          </div>
+          <div class="input-group">
+            <label>Master Password</label>
+            <input type="password" id="reg-password" placeholder="••••••" />
+          </div>
+
+          <button onclick="register()" class="btn-success">Sign Up</button>
+
+          <p class="switch-text">
+            Already have an account? <span onclick="showLogin()">Login</span>
+          </p>
+        </div>
+      </div>
+
+      <div id="dashboard-section" class="hidden">
+        <div class="header">
+          <h2>My Vault</h2>
+
+          <div class="header-actions">
+            <button
+              onclick="toggleModal()"
+              class="btn-add"
+              title="Add Password"
+            >
+              +
+            </button>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+          </div>
+        </div>
+
+        <div id="password-list" class="list-container"></div>
+      </div>
+    </div>
+
+    <div id="add-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>Add New Credential</h3>
+
+        <input
+          type="text"
+          id="new-service"
+          placeholder="Service Name (e.g. Netflix)"
+        />
+        <input type="text" id="new-username" placeholder="Username/Email" />
+        <input type="text" id="new-password" placeholder="Password" />
+
+        <div class="modal-actions">
+          <button onclick="saveCredential()" class="btn-primary">Save</button>
+          <button onclick="toggleModal()" class="btn-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
