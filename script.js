@@ -1,13 +1,13 @@
 const API_URL = "https://password-vault-1ynf.onrender.com/api";
 let currentUser = null;
 
-// === VERIFICAÇÃO INICIAL (Ao abrir a página) ===
+// === VERIFICAÇÃO INICIAL (SEGURANÇA MÁXIMA) ===
+// Sempre que a página carrega, forçamos o logout e limpamos tudo.
 window.onload = function () {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    currentUser = JSON.parse(storedUser);
-    showDashboard();
-  }
+  currentUser = null;
+  localStorage.removeItem("user"); // Remove qualquer rastro antigo
+  clearForms();
+  showLogin(); // Força a tela de login
 };
 
 // === NAVEGAÇÃO E LIMPEZA ===
@@ -47,7 +47,7 @@ function toggleModal() {
   modal.classList.toggle("hidden");
 }
 
-// === AUTH SYSTEM (Usando masterPassword) ===
+// === AUTH SYSTEM ===
 
 async function register() {
   const username = document.getElementById("reg-username").value;
@@ -64,7 +64,7 @@ async function register() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username,
-        masterPassword: password, // ✅ Correção para Backend Antigo
+        masterPassword: password,
       }),
     });
 
@@ -96,14 +96,14 @@ async function login() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username,
-        masterPassword: password, // ✅ Correção para Backend Antigo
+        masterPassword: password,
       }),
     });
 
     if (response.ok) {
       currentUser = await response.json();
-      // Salva no navegador para não deslogar ao atualizar
-      localStorage.setItem("user", JSON.stringify(currentUser));
+      // NOTA: Removida a linha que salvava no localStorage.
+      // Agora, se der F5 ou fechar a aba, o usuário é deslogado.
       showDashboard();
     } else {
       alert("Invalid credentials!");
@@ -116,7 +116,6 @@ async function login() {
 
 function logout() {
   currentUser = null;
-  localStorage.removeItem("user"); // Limpa sessão
   showLogin();
 }
 
@@ -145,11 +144,12 @@ async function loadCredentials() {
         const card = document.createElement("div");
         card.className = "card-item";
 
-        // MÁGICA DA CONFIRMAÇÃO VISUAL AQUI EMBAIXO
-        // Criamos dois blocos: um com a lixeira (visível) e um com a confirmação (escondido)
+        const displayService =
+          cred.serviceName || cred.url || cred.service || "No Name";
+
         card.innerHTML = `
             <div class="card-info">
-                <strong>${cred.serviceName || cred.url || cred.service || "No Name"}</strong>
+                <strong>${displayService}</strong>
                 <p>User: ${cred.username}</p>
                 <p>Pass: <code>${cred.password}</code></p>
             </div>
@@ -161,8 +161,8 @@ async function loadCredentials() {
 
                 <div id="confirm-area-${cred.id}" class="confirm-box hidden">
                     <span class="confirm-text">Sure?</span>
-                    <button onclick="executeDelete(${cred.id})" class="btn-yes" title="Yes">✔</button>
-                    <button onclick="cancelDelete(${cred.id})" class="btn-no" title="No">✖</button>
+                    <button onclick="executeDelete(${cred.id})" class="btn-yes" title="Delete Forever">✔</button>
+                    <button onclick="cancelDelete(${cred.id})" class="btn-no" title="Cancel">✖</button>
                 </div>
             </div>
         `;
@@ -177,23 +177,17 @@ async function loadCredentials() {
   }
 }
 
-// --- FUNÇÕES DE CONTROLE VISUAL ---
+// --- FUNÇÕES DE CONTROLE VISUAL (DELETE) ---
 
 function showConfirm(id) {
-  // Esconde a lixeira
   document.getElementById(`btn-trash-${id}`).classList.add("hidden");
-  // Mostra a confirmação
   document.getElementById(`confirm-area-${id}`).classList.remove("hidden");
 }
 
 function cancelDelete(id) {
-  // Esconde a confirmação
   document.getElementById(`confirm-area-${id}`).classList.add("hidden");
-  // Volta a lixeira
   document.getElementById(`btn-trash-${id}`).classList.remove("hidden");
 }
-
-// --- FUNÇÃO QUE DELETA DE VERDADE ---
 
 async function executeDelete(id) {
   try {
@@ -202,7 +196,7 @@ async function executeDelete(id) {
     });
 
     if (response.ok) {
-      loadCredentials(); // Recarrega a lista
+      loadCredentials();
     } else {
       alert("Error deleting credential.");
     }
@@ -211,6 +205,8 @@ async function executeDelete(id) {
     alert("Failed to connect to server.");
   }
 }
+
+// --- SAVE CREDENTIAL ---
 
 async function saveCredential() {
   const serviceVal = document.getElementById("new-service").value;
@@ -227,7 +223,7 @@ async function saveCredential() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        serviceName: serviceVal, // Mantendo serviceName como está funcionando
+        serviceName: serviceVal,
         username: usernameVal,
         password: passwordVal,
       }),
