@@ -145,19 +145,26 @@ async function loadCredentials() {
         const card = document.createElement("div");
         card.className = "card-item";
 
-        // VERIFICAÇÃO DE NOME (Service ou URL)
-        const displayService =
-          cred.serviceName || cred.url || cred.service || "No Name";
-
+        // MÁGICA DA CONFIRMAÇÃO VISUAL AQUI EMBAIXO
+        // Criamos dois blocos: um com a lixeira (visível) e um com a confirmação (escondido)
         card.innerHTML = `
             <div class="card-info">
-                <strong>${displayService}</strong>
+                <strong>${cred.serviceName || cred.url || cred.service || "No Name"}</strong>
                 <p>User: ${cred.username}</p>
                 <p>Pass: <code>${cred.password}</code></p>
             </div>
-            <button onclick="deleteCredential(${cred.id})" class="btn-delete" title="Delete">
-                🗑️
-            </button>
+            
+            <div class="delete-section">
+                <button id="btn-trash-${cred.id}" onclick="showConfirm(${cred.id})" class="btn-delete" title="Delete">
+                    🗑️
+                </button>
+
+                <div id="confirm-area-${cred.id}" class="confirm-box hidden">
+                    <span class="confirm-text">Sure?</span>
+                    <button onclick="executeDelete(${cred.id})" class="btn-yes" title="Yes">✔</button>
+                    <button onclick="cancelDelete(${cred.id})" class="btn-no" title="No">✖</button>
+                </div>
+            </div>
         `;
         listDiv.appendChild(card);
       });
@@ -170,17 +177,32 @@ async function loadCredentials() {
   }
 }
 
-// --- FUNÇÃO NOVA DE DELETAR ---
-async function deleteCredential(id) {
-  if (!confirm("Are you sure you want to delete this password?")) return;
+// --- FUNÇÕES DE CONTROLE VISUAL ---
 
+function showConfirm(id) {
+  // Esconde a lixeira
+  document.getElementById(`btn-trash-${id}`).classList.add("hidden");
+  // Mostra a confirmação
+  document.getElementById(`confirm-area-${id}`).classList.remove("hidden");
+}
+
+function cancelDelete(id) {
+  // Esconde a confirmação
+  document.getElementById(`confirm-area-${id}`).classList.add("hidden");
+  // Volta a lixeira
+  document.getElementById(`btn-trash-${id}`).classList.remove("hidden");
+}
+
+// --- FUNÇÃO QUE DELETA DE VERDADE ---
+
+async function executeDelete(id) {
   try {
     const response = await fetch(`${API_URL}/credentials/${id}`, {
       method: "DELETE",
     });
 
     if (response.ok) {
-      loadCredentials(); // Recarrega a lista sem a senha deletada
+      loadCredentials(); // Recarrega a lista
     } else {
       alert("Error deleting credential.");
     }

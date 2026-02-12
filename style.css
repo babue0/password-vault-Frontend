@@ -273,3 +273,67 @@ button:active {
 .modal-actions {
   margin-top: 20px;
 }
+
+.delete-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 100px; /* Garante espaço para os botões não quebrarem linha */
+}
+
+/* O grupo de confirmação (escondido por padrão) */
+.confirm-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-text {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.btn-yes {
+  background: #fee2e2; /* Vermelho bem clarinho */
+  border: 1px solid #ef4444; /* Borda vermelha */
+  color: #b91c1c; /* Ícone vermelho escuro */
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s; /* Suaviza a transição */
+}
+
+/* Ao passar o mouse, ele fica vermelho sólido para chamar atenção */
+.btn-yes:hover {
+  transform: scale(1.1);
+  background: #ef4444;
+  color: white;
+}
+
+/* SUBSTITUA TAMBÉM O .btn-no PARA FICAR MAIS NEUTRO */
+
+/* Botão de Cancelar (Cinza Neutro) */
+.btn-no {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+.btn-no:hover {
+  transform: scale(1.1);
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #9ca3af;
+}
