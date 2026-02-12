@@ -18,18 +18,18 @@ body {
 
 /* UTILITIES */
 .hidden {
-  display: none !important; /* OBRIGATÓRIO: Garante que esconde */
+  display: none !important;
 }
 
 .container {
   width: 100%;
-  max-width: 500px; /* AUMENTADO: Era 400px, agora é maior */
+  max-width: 500px;
   padding: 20px;
 }
 
 .card {
   background: white;
-  padding: 40px; /* Aumentei o padding interno */
+  padding: 40px;
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   text-align: center;
@@ -63,14 +63,13 @@ body {
 
 input {
   width: 100%;
-  padding: 14px; /* Input maior */
+  padding: 14px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 16px; /* Letra maior */
+  font-size: 16px;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
-
 input:focus {
   outline: none;
   border-color: #2563eb;
@@ -79,7 +78,7 @@ input:focus {
 /* BUTTONS */
 button {
   width: 100%;
-  padding: 14px; /* Botão maior */
+  padding: 14px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -132,7 +131,7 @@ button:active {
   text-decoration: underline;
 }
 
-/* --- DASHBOARD HEADER (NOVO) --- */
+/* DASHBOARD HEADER */
 .header {
   display: flex;
   justify-content: space-between;
@@ -141,7 +140,7 @@ button:active {
 }
 
 .header h2 {
-  font-size: 36px; /* TÍTULO BEM MAIOR */
+  font-size: 36px;
   margin: 0;
   color: #111827;
 }
@@ -152,7 +151,6 @@ button:active {
   align-items: center;
 }
 
-/* Botão + (Quadrado Azul) */
 .btn-add {
   width: 44px;
   height: 44px;
@@ -170,14 +168,13 @@ button:active {
   background-color: #1d4ed8;
 }
 
-/* Botão Logout (Ajustado) */
 .btn-logout {
   background: transparent;
   color: #ef4444;
   width: auto;
-  border: 2px solid #ef4444; /* Borda mais grossa */
+  border: 2px solid #ef4444;
   padding: 0 16px;
-  height: 44px; /* Mesma altura do botão + */
+  height: 44px;
   display: flex;
   align-items: center;
 }
@@ -185,7 +182,7 @@ button:active {
   background-color: #fee2e2;
 }
 
-/* --- LISTA DE SENHAS --- */
+/* LIST ITEMS (Com estilo de Edição) */
 .list-container {
   max-height: 500px;
   overflow-y: auto;
@@ -193,19 +190,28 @@ button:active {
 
 .card-item {
   background: white;
-  padding: 20px; /* Cartão maior */
+  padding: 20px;
   border-radius: 12px;
   margin-bottom: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   border: 1px solid #e5e7eb;
   border-left: 6px solid #2563eb;
+
+  /* Flex para alinhar botão na direita */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-info {
+  flex-grow: 1;
 }
 .card-item strong {
   display: block;
   font-size: 20px;
   color: #111827;
   margin-bottom: 6px;
-} /* Texto maior */
+}
 .card-item p {
   margin: 4px 0;
   font-size: 15px;
@@ -218,6 +224,23 @@ button:active {
   color: #dc2626;
   font-family: monospace;
   font-size: 16px;
+}
+
+/* Botão de Editar */
+.btn-edit {
+  width: auto;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  height: fit-content;
+}
+.btn-edit:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+  border-color: #9ca3af;
 }
 
 /* MODAL */

@@ -1,44 +1,46 @@
+// ✅ URL DO SEU BACKEND NO RENDER
 const API_URL = "https://password-vault-1ynf.onrender.com/api";
-let currentUser = null;
 
-// === FUNÇÃO MÁGICA DE LIMPEZA ===
-function clearForms() {
-  // Limpa todos os inputs da tela
-  document.querySelectorAll("input").forEach((input) => (input.value = ""));
-}
+// --- LOGIN SYSTEM ---
 
-// === NAVEGAÇÃO ENTRE TELAS ===
-function showRegister() {
-  clearForms(); // Limpa tudo antes de mostrar
-  document.getElementById("login-section").classList.add("hidden");
-  document.getElementById("register-section").classList.remove("hidden");
-}
+async function login() {
+  const usernameInput = document.getElementById("login-username").value;
+  const passwordInput = document.getElementById("login-password").value;
 
-function showLogin() {
-  clearForms(); // Limpa tudo antes de mostrar
-  document.getElementById("register-section").classList.add("hidden");
-  document.getElementById("login-section").classList.remove("hidden");
-}
-
-function toggleModal() {
-  // Se for abrir o modal, limpa os campos dele primeiro
-  const modal = document.getElementById("add-modal");
-  if (modal.classList.contains("hidden")) {
-    document.getElementById("new-service").value = "";
-    document.getElementById("new-username").value = "";
-    document.getElementById("new-password").value = "";
+  if (!usernameInput || !passwordInput) {
+    alert("Please fill all fields");
+    return;
   }
-  modal.classList.toggle("hidden");
-}
 
-// === LÓGICA DE NEGÓCIO ===
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: usernameInput,
+        password: passwordInput,
+      }),
+    });
+
+    if (response.ok) {
+      const user = await response.json();
+      localStorage.setItem("user", JSON.stringify(user));
+      showDashboard();
+    } else {
+      alert("Invalid credentials ❌");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Server error. Check console.");
+  }
+}
 
 async function register() {
-  const username = document.getElementById("reg-username").value;
-  const password = document.getElementById("reg-password").value;
+  const usernameInput = document.getElementById("reg-username").value;
+  const passwordInput = document.getElementById("reg-password").value;
 
-  if (!username || !password) {
-    alert("Please fill in all fields!");
+  if (!usernameInput || !passwordInput) {
+    alert("Please fill all fields");
     return;
   }
 
@@ -47,8 +49,8 @@ async function register() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: username,
-        masterPassword: password, // IMPORTANTE: Deve bater com o Java (User.java)
+        username: usernameInput,
+        password: passwordInput,
       }),
     });
 
@@ -56,111 +58,170 @@ async function register() {
       alert("Account created! Please login.");
       showLogin();
     } else {
-      // Tenta ler a mensagem de erro do Java
-      const errorText = await response.text();
-      alert("Error: " + errorText);
+      alert("Error creating account.");
     }
   } catch (error) {
-    console.error("Erro ao registrar:", error);
-    alert("Failed to connect to server. Is Backend running?");
-  }
-}
-
-async function login() {
-  const username = document.getElementById("login-username").value;
-  const password = document.getElementById("login-password").value;
-
-  if (!username || !password) return;
-
-  try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, masterPassword: password }),
-    });
-
-    if (response.ok) {
-      currentUser = await response.json();
-
-      // Troca de tela
-      document.getElementById("login-section").classList.add("hidden");
-      document.getElementById("dashboard-section").classList.remove("hidden");
-
-      loadCredentials(); // Carrega os dados
-    } else {
-      alert("Invalid username or password!");
-    }
-  } catch (error) {
-    console.error("Erro ao logar:", error);
-    alert("Connection failed.");
+    console.error("Register error:", error);
+    alert("Server error.");
   }
 }
 
 function logout() {
-  currentUser = null;
-  clearForms(); // Limpa tudo ao sair
-  document.getElementById("dashboard-section").classList.add("hidden");
+  localStorage.removeItem("user");
+  location.reload();
+}
+
+// --- NAVIGATION ---
+
+function showRegister() {
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("register-section").classList.remove("hidden");
+}
+
+function showLogin() {
+  document.getElementById("register-section").classList.add("hidden");
   document.getElementById("login-section").classList.remove("hidden");
 }
 
-// === CREDENCIAIS ===
+function showDashboard() {
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("dashboard-section").classList.remove("hidden");
+  loadCredentials();
+}
+
+// Check validation on load
+window.onload = function () {
+  const user = localStorage.getItem("user");
+  if (user) {
+    showDashboard();
+  }
+};
+
+// --- CREDENTIALS CRUD ---
 
 async function loadCredentials() {
-  const listDiv = document.getElementById("password-list");
-  listDiv.innerHTML = '<p style="text-align:center">Loading...</p>';
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) return;
 
   try {
-    const response = await fetch(`${API_URL}/credentials/${currentUser.id}`);
-    const credentials = await response.json();
-
-    listDiv.innerHTML = ""; // Limpa o loading
-
-    if (credentials.length === 0) {
-      listDiv.innerHTML =
-        '<p style="text-align:center; color:#9ca3af;">No passwords saved yet.</p>';
-      return;
+    const response = await fetch(`${API_URL}/credentials/${user.id}`);
+    if (response.ok) {
+      const credentials = await response.json();
+      renderCredentials(credentials);
+    } else {
+      document.getElementById("password-list").innerHTML =
+        "<p>Error loading data.</p>";
     }
-
-    credentials.forEach((cred) => {
-      const card = document.createElement("div");
-      card.className = "card-item";
-      card.innerHTML = `
-                <strong>${cred.serviceName}</strong>
-                <p>User: ${cred.username}</p>
-                <p>Pass: <code>${cred.password}</code></p>
-            `;
-      listDiv.appendChild(card);
-    });
   } catch (error) {
-    console.error(error);
-    listDiv.innerHTML = '<p style="color:red">Error loading data.</p>';
+    console.error("Load error:", error);
   }
 }
 
-async function saveCredential() {
-  const service = document.getElementById("new-service").value;
-  const username = document.getElementById("new-username").value;
-  const password = document.getElementById("new-password").value;
+function renderCredentials(credentials) {
+  const list = document.getElementById("password-list");
+  list.innerHTML = "";
 
-  if (!service || !username || !password) {
-    alert("Fill all fields!");
+  if (credentials.length === 0) {
+    list.innerHTML =
+      "<p style='text-align:center; color:#9ca3af;'>No passwords saved yet.</p>";
     return;
   }
 
-  try {
-    await fetch(`${API_URL}/credentials/${currentUser.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        serviceName: service,
-        username: username,
-        password: password,
-      }),
-    });
+  credentials.forEach((cred) => {
+    const item = document.createElement("div");
+    item.className = "card-item";
 
-    toggleModal(); // Fecha modal
-    loadCredentials(); // Recarrega lista
+    // Passa os dados para a função de editar
+    item.innerHTML = `
+            <div class="card-info">
+                <strong>${cred.service}</strong>
+                <p>User: ${cred.username}</p>
+                <p>Pass: <code>${cred.password}</code></p>
+            </div>
+            <button onclick="openEditModal(${cred.id}, '${cred.service}', '${cred.username}', '${cred.password}')" class="btn-edit">
+                Edit ✏️
+            </button>
+        `;
+    list.appendChild(item);
+  });
+}
+
+// --- MODAL & SAVE LOGIC ---
+
+// Abre modal para CRIAR (Limpo)
+function toggleModal() {
+  const modal = document.getElementById("add-modal");
+  if (modal.classList.contains("hidden")) {
+    // Limpa tudo para criar novo
+    document.getElementById("edit-id").value = "";
+    document.getElementById("new-service").value = "";
+    document.getElementById("new-username").value = "";
+    document.getElementById("new-password").value = "";
+    document.getElementById("modal-title").innerText = "Add New Credential";
+    modal.classList.remove("hidden");
+  } else {
+    modal.classList.add("hidden");
+  }
+}
+
+// Abre modal para EDITAR (Preenchido)
+function openEditModal(id, service, username, password) {
+  document.getElementById("edit-id").value = id;
+  document.getElementById("new-service").value = service;
+  document.getElementById("new-username").value = username;
+  document.getElementById("new-password").value = password;
+
+  document.getElementById("modal-title").innerText = "Edit Credential";
+  document.getElementById("add-modal").classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("add-modal").classList.add("hidden");
+}
+
+async function saveCredential() {
+  const id = document.getElementById("edit-id").value; // ID escondido
+  const service = document.getElementById("new-service").value;
+  const username = document.getElementById("new-username").value;
+  const password = document.getElementById("new-password").value;
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!service || !username || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  const headers = { "Content-Type": "application/json" };
+  // JSON agora usa 'service'
+  const body = JSON.stringify({ service, username, password });
+
+  try {
+    let response;
+
+    if (id) {
+      // SE TEM ID, É EDIÇÃO (PUT)
+      response = await fetch(`${API_URL}/credentials/${id}`, {
+        method: "PUT",
+        headers: headers,
+        body: body,
+      });
+    } else {
+      // SE NÃO TEM ID, É CRIAÇÃO (POST)
+      response = await fetch(`${API_URL}/credentials/${user.id}`, {
+        method: "POST",
+        headers: headers,
+        body: body,
+      });
+    }
+
+    if (response.ok) {
+      closeModal();
+      loadCredentials(); // Recarrega a lista
+    } else {
+      alert("Error saving data");
+    }
   } catch (error) {
-    alert("Error saving password");
+    console.error("Error:", error);
+    alert("Failed to connect to server");
   }
 }
