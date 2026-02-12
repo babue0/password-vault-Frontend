@@ -1,29 +1,45 @@
 const API_URL = "https://password-vault-1ynf.onrender.com/api";
 let currentUser = null;
 
-// === FUNÇÃO MÁGICA DE LIMPEZA ===
+// === VERIFICAÇÃO INICIAL (Ao abrir a página) ===
+window.onload = function () {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    currentUser = JSON.parse(storedUser);
+    showDashboard();
+  }
+};
+
+// === NAVEGAÇÃO E LIMPEZA ===
 function clearForms() {
-  // Limpa todos os inputs da tela
   document.querySelectorAll("input").forEach((input) => (input.value = ""));
 }
 
-// === NAVEGAÇÃO ENTRE TELAS ===
 function showRegister() {
-  clearForms(); // Limpa tudo antes de mostrar
+  clearForms();
   document.getElementById("login-section").classList.add("hidden");
   document.getElementById("register-section").classList.remove("hidden");
+  document.getElementById("dashboard-section").classList.add("hidden");
 }
 
 function showLogin() {
-  clearForms(); // Limpa tudo antes de mostrar
+  clearForms();
   document.getElementById("register-section").classList.add("hidden");
+  document.getElementById("dashboard-section").classList.add("hidden");
   document.getElementById("login-section").classList.remove("hidden");
 }
 
+function showDashboard() {
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("register-section").classList.add("hidden");
+  document.getElementById("dashboard-section").classList.remove("hidden");
+  loadCredentials();
+}
+
 function toggleModal() {
-  // Se for abrir o modal, limpa os campos dele primeiro
   const modal = document.getElementById("add-modal");
   if (modal.classList.contains("hidden")) {
+    // Limpa campos antes de abrir
     document.getElementById("new-service").value = "";
     document.getElementById("new-username").value = "";
     document.getElementById("new-password").value = "";
@@ -31,7 +47,7 @@ function toggleModal() {
   modal.classList.toggle("hidden");
 }
 
-// === LÓGICA DE NEGÓCIO ===
+// === AUTH SYSTEM (Usando masterPassword) ===
 
 async function register() {
   const username = document.getElementById("reg-username").value;
@@ -48,7 +64,7 @@ async function register() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username,
-        masterPassword: password, // IMPORTANTE: Deve bater com o Java (User.java)
+        masterPassword: password, // ✅ Correção para Backend Antigo
       }),
     });
 
@@ -56,13 +72,12 @@ async function register() {
       alert("Account created! Please login.");
       showLogin();
     } else {
-      // Tenta ler a mensagem de erro do Java
       const errorText = await response.text();
       alert("Error: " + errorText);
     }
   } catch (error) {
-    console.error("Erro ao registrar:", error);
-    alert("Failed to connect to server. Is Backend running?");
+    console.error("Register error:", error);
+    alert("Failed to connect to server.");
   }
 }
 
@@ -70,97 +85,113 @@ async function login() {
   const username = document.getElementById("login-username").value;
   const password = document.getElementById("login-password").value;
 
-  if (!username || !password) return;
+  if (!username || !password) {
+    alert("Fill all fields");
+    return;
+  }
 
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, masterPassword: password }),
+      body: JSON.stringify({
+        username: username,
+        masterPassword: password, // ✅ Correção para Backend Antigo
+      }),
     });
 
     if (response.ok) {
       currentUser = await response.json();
-
-      // Troca de tela
-      document.getElementById("login-section").classList.add("hidden");
-      document.getElementById("dashboard-section").classList.remove("hidden");
-
-      loadCredentials(); // Carrega os dados
+      // Salva no navegador para não deslogar ao atualizar
+      localStorage.setItem("user", JSON.stringify(currentUser));
+      showDashboard();
     } else {
-      alert("Invalid username or password!");
+      alert("Invalid credentials!");
     }
   } catch (error) {
-    console.error("Erro ao logar:", error);
+    console.error("Login error:", error);
     alert("Connection failed.");
   }
 }
 
 function logout() {
   currentUser = null;
-  clearForms(); // Limpa tudo ao sair
-  document.getElementById("dashboard-section").classList.add("hidden");
-  document.getElementById("login-section").classList.remove("hidden");
+  localStorage.removeItem("user"); // Limpa sessão
+  showLogin();
 }
 
-// === CREDENCIAIS ===
+// === CREDENTIALS (CRUD) ===
 
 async function loadCredentials() {
+  if (!currentUser) return;
+
   const listDiv = document.getElementById("password-list");
   listDiv.innerHTML = '<p style="text-align:center">Loading...</p>';
 
   try {
     const response = await fetch(`${API_URL}/credentials/${currentUser.id}`);
-    const credentials = await response.json();
 
-    listDiv.innerHTML = ""; // Limpa o loading
+    if (response.ok) {
+      const credentials = await response.json();
+      listDiv.innerHTML = "";
 
-    if (credentials.length === 0) {
-      listDiv.innerHTML =
-        '<p style="text-align:center; color:#9ca3af;">No passwords saved yet.</p>';
-      return;
+      if (credentials.length === 0) {
+        listDiv.innerHTML =
+          '<p style="text-align:center; color:#9ca3af;">No passwords saved yet.</p>';
+        return;
+      }
+
+      credentials.forEach((cred) => {
+        const card = document.createElement("div");
+        card.className = "card-item";
+
+        // NOTA: Se você fez rollback, o backend provavelmente usa 'url' e não 'service'
+        // Se não aparecer o nome do site, troque cred.url por cred.service abaixo
+        card.innerHTML = `
+                    <strong>${cred.url || cred.service || "No Name"}</strong>
+                    <p>User: ${cred.username}</p>
+                    <p>Pass: <code>${cred.password}</code></p>
+                `;
+        listDiv.appendChild(card);
+      });
+    } else {
+      listDiv.innerHTML = "<p>Error loading list.</p>";
     }
-
-    credentials.forEach((cred) => {
-      const card = document.createElement("div");
-      card.className = "card-item";
-      card.innerHTML = `
-                <strong>${cred.serviceName}</strong>
-                <p>User: ${cred.username}</p>
-                <p>Pass: <code>${cred.password}</code></p>
-            `;
-      listDiv.appendChild(card);
-    });
   } catch (error) {
     console.error(error);
-    listDiv.innerHTML = '<p style="color:red">Error loading data.</p>';
+    listDiv.innerHTML = "<p>Connection error.</p>";
   }
 }
 
 async function saveCredential() {
-  const service = document.getElementById("new-service").value;
-  const username = document.getElementById("new-username").value;
-  const password = document.getElementById("new-password").value;
+  const serviceVal = document.getElementById("new-service").value;
+  const usernameVal = document.getElementById("new-username").value;
+  const passwordVal = document.getElementById("new-password").value;
 
-  if (!service || !username || !password) {
+  if (!serviceVal || !usernameVal || !passwordVal) {
     alert("Fill all fields!");
     return;
   }
 
   try {
-    await fetch(`${API_URL}/credentials/${currentUser.id}`, {
+    const response = await fetch(`${API_URL}/credentials/${currentUser.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        serviceName: service,
-        username: username,
-        password: password,
+        url: serviceVal, // ✅ Enviando como 'url' para garantir compatibilidade
+        username: usernameVal,
+        password: passwordVal,
       }),
     });
 
-    toggleModal(); // Fecha modal
-    loadCredentials(); // Recarrega lista
+    if (response.ok) {
+      toggleModal();
+      loadCredentials();
+    } else {
+      alert("Error saving. Check console.");
+    }
   } catch (error) {
-    alert("Error saving password");
+    console.error(error);
+    alert("Failed to save.");
   }
 }
