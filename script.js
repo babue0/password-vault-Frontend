@@ -148,7 +148,7 @@ async function loadCredentials() {
         // NOTA: Se você fez rollback, o backend provavelmente usa 'url' e não 'service'
         // Se não aparecer o nome do site, troque cred.url por cred.service abaixo
         card.innerHTML = `
-                    <strong>${cred.url || cred.service || "No Name"}</strong>
+                    <strong>${cred.serviceName || cred.url || cred.service || "No Name"}</strong>
                     <p>User: ${cred.username}</p>
                     <p>Pass: <code>${cred.password}</code></p>
                 `;
