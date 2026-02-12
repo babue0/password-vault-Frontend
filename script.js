@@ -178,7 +178,7 @@ async function saveCredential() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        url: serviceVal, // ✅ Enviando como 'url' para garantir compatibilidade
+        serviceName: serviceVal,
         username: usernameVal,
         password: passwordVal,
       }),
