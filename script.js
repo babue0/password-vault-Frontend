@@ -145,13 +145,20 @@ async function loadCredentials() {
         const card = document.createElement("div");
         card.className = "card-item";
 
-        // NOTA: Se você fez rollback, o backend provavelmente usa 'url' e não 'service'
-        // Se não aparecer o nome do site, troque cred.url por cred.service abaixo
+        // VERIFICAÇÃO DE NOME (Service ou URL)
+        const displayService =
+          cred.serviceName || cred.url || cred.service || "No Name";
+
         card.innerHTML = `
-                    <strong>${cred.serviceName || cred.url || cred.service || "No Name"}</strong>
-                    <p>User: ${cred.username}</p>
-                    <p>Pass: <code>${cred.password}</code></p>
-                `;
+            <div class="card-info">
+                <strong>${displayService}</strong>
+                <p>User: ${cred.username}</p>
+                <p>Pass: <code>${cred.password}</code></p>
+            </div>
+            <button onclick="deleteCredential(${cred.id})" class="btn-delete" title="Delete">
+                🗑️
+            </button>
+        `;
         listDiv.appendChild(card);
       });
     } else {
@@ -160,6 +167,26 @@ async function loadCredentials() {
   } catch (error) {
     console.error(error);
     listDiv.innerHTML = "<p>Connection error.</p>";
+  }
+}
+
+// --- FUNÇÃO NOVA DE DELETAR ---
+async function deleteCredential(id) {
+  if (!confirm("Are you sure you want to delete this password?")) return;
+
+  try {
+    const response = await fetch(`${API_URL}/credentials/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      loadCredentials(); // Recarrega a lista sem a senha deletada
+    } else {
+      alert("Error deleting credential.");
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Failed to connect to server.");
   }
 }
 
@@ -178,7 +205,7 @@ async function saveCredential() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        serviceName: serviceVal,
+        serviceName: serviceVal, // Mantendo serviceName como está funcionando
         username: usernameVal,
         password: passwordVal,
       }),

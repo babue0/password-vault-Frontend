@@ -193,13 +193,21 @@ button:active {
 
 .card-item {
   background: white;
-  padding: 20px; /* Cartão maior */
+  padding: 20px;
   border-radius: 12px;
   margin-bottom: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   border: 1px solid #e5e7eb;
   border-left: 6px solid #2563eb;
+
+  display: flex;
+  justify-content: space-between; /* Texto na ponta, botão na outra */
+  align-items: center;
 }
+.card-info {
+  flex-grow: 1;
+}
+
 .card-item strong {
   display: block;
   font-size: 20px;
@@ -218,6 +226,29 @@ button:active {
   color: #dc2626;
   font-family: monospace;
   font-size: 16px;
+}
+
+.btn-delete {
+  background-color: transparent;
+  border: 2px solid #fee2e2;
+  color: #ef4444; /* Vermelho */
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
+  transform: scale(1.05);
 }
 
 /* MODAL */
